@@ -50,10 +50,14 @@ data = {
 
 df = pd.DataFrame(data)
 
+# Force correct chronological order
+quarter_order = ["Q3 2025", "Q4 2025", "Q1 2026", "Q2 2026"]
+df["Quarter"] = pd.Categorical(df["Quarter"], categories=quarter_order, ordered=True)
+df = df.sort_values("Quarter")
+
 # ====================== DISPLAY ======================
 multiplier = 1000 if price_type == "Per 1,000 Bricks" else 1
 
-# Region mapping
 currency_map = {
     "US (USD)": ("USD", "Common_USD", "Cleaned_USD", "Premium_USD", "Antique_USD"),
     "UK (GBP)": ("GBP", "Common_GBP", "Cleaned_GBP", "Premium_GBP", "Antique_GBP"),
@@ -63,7 +67,7 @@ currency_map = {
 
 curr_symbol, c1, c2, c3, c4 = currency_map[region]
 
-# Chart
+# Chart - Now guaranteed correct order
 st.subheader("Price Trends Over Time")
 chart_data = df[["Quarter", c1, c2, c3, c4]].set_index("Quarter") * multiplier
 st.line_chart(chart_data, use_container_width=True, height=500)
