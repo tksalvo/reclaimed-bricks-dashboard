@@ -2,10 +2,20 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 
-st.set_page_config(page_title="Reclaimed Bricks Dashboard", layout="wide")
+st.set_page_config(page_title="No16: Reclaimed Bricks", layout="wide")
 
-st.title("🧱 Reclaimed Bricks Global Market Benchmark Dashboard")
-st.markdown(f"**Last Updated:** {datetime.now().strftime('%B %d, %Y')}")
+# ====================== HEADER ======================
+st.markdown("### Global OIPRs by Salvo futuREuse Ltd")
+
+st.title("No16: Reclaimed Bricks")
+
+st.caption("""
+**Observational Indicative Price Ranges.** Not guaranteed accurate.  
+Sourced from Salvo Marketplace members and public websites.  
+**Collected by Salvo futuREuse Ltd.**
+""")
+
+st.markdown("---")
 
 # ====================== FILTERS ======================
 col1, col2, col3 = st.columns([2, 2, 1])
@@ -50,7 +60,7 @@ data = {
 
 df = pd.DataFrame(data)
 
-# Force correct chronological order
+# Force correct order
 quarter_order = ["Q3 2025", "Q4 2025", "Q1 2026", "Q2 2026"]
 df["Quarter"] = pd.Categorical(df["Quarter"], categories=quarter_order, ordered=True)
 df = df.sort_values("Quarter")
@@ -67,7 +77,7 @@ currency_map = {
 
 curr_symbol, c1, c2, c3, c4 = currency_map[region]
 
-# Chart - Now guaranteed correct order
+# Chart
 st.subheader("Price Trends Over Time")
 chart_data = df[["Quarter", c1, c2, c3, c4]].set_index("Quarter") * multiplier
 st.line_chart(chart_data, use_container_width=True, height=500)
