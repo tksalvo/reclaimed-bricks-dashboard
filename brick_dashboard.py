@@ -5,7 +5,6 @@ import pytz
 
 st.set_page_config(page_title="No16: Reclaimed Bricks", layout="wide")
 
-# ====================== HEADER ======================
 st.markdown("### Global OIPRs by Salvo futuREuse Ltd")
 st.title("No16: Reclaimed Bricks")
 
@@ -14,65 +13,45 @@ st.caption("""
 Sourced from Salvo Marketplace members and public websites.  
 **Collected by Salvo futuREuse Ltd.**
 """)
+
 st.markdown("---")
 
-# ====================== TIER FROM URL ======================
+# Tier
 query_params = st.query_params
 tier = query_params.get("tier", ["free"])[0].lower()
 
-# Tier display
 if tier == "free":
-    st.info("🔓 **Free Tier** — Historical data up to 2024")
+    st.info("🔓 Free Tier — Data up to 2024")
     max_year = "2024"
 elif tier == "salvoweb":
-    st.success("✅ **salvoweb.com Registered User** — Data up to Q4 2025")
+    st.success("✅ salvoweb.com User — Data up to Q4 2025")
     max_year = "2025"
-else:  # premium
-    st.success("⭐ **Full Marketplace Member** — All data including 2026")
+else:
+    st.success("⭐ Full Marketplace Member — Data up to 2026")
     max_year = "2026"
 
-if st.button("🔑 Login / Register on salvoweb.com"):
-    st.markdown("[👉 Go to salvoweb.com](https://salvoweb.com)", unsafe_allow_html=True)
-
-st.markdown("---")
-
-# ====================== CURRENT TIME (West to East) ======================
+# Time
 st.subheader("Current Time (Key Cities)")
-time_cols = st.columns(4)
-
-cities = [
-    ("Chicago", "America/Chicago"),
-    ("London", "Europe/London"),
-    ("Brussels", "Europe/Brussels"),
-    ("Sydney", "Australia/Sydney")
-]
+cols = st.columns(4)
+cities = [("Chicago", "America/Chicago"), ("London", "Europe/London"), 
+          ("Brussels", "Europe/Brussels"), ("Sydney", "Australia/Sydney")]
 
 for i, (city, tz) in enumerate(cities):
-    with time_cols[i]:
+    with cols[i]:
         current = datetime.now(pytz.timezone(tz))
         st.write(f"**{city}**")
-        st.write(current.strftime('%H:%M'))   # Only hours and minutes
+        st.write(current.strftime('%H:%M'))
 
-st.markdown("---")
+# Simple Data
+data = {
+    "Quarter": ["Q3 2024", "Q4 2024", "Q1 2025", "Q2 2025"],
+    "Common_USD": [0.42, 0.44, 0.45, 0.46],
+}
 
-# ====================== REST OF DASHBOARD ======================
-# (Filters, Data, Charts, etc. - keeping the rest the same)
-col1, col2 = st.columns([2, 2])
-
-with col1:
-    region = st.selectbox("Select Region", ["US (USD)", "UK (GBP)", "EU (EUR)", "Australia (AUD)"])
-
-with col2:
-    price_type = st.radio("Price Display", ["Per Brick", "Per 1,000 Bricks"], horizontal=True)
-
-multiplier = 1000 if price_type == "Per 1,000 Bricks" else 1
+df = pd.DataFrame(data)
 
 st.subheader("Price Trends Over Time")
-st.line_chart(df.set_index("Quarter"), use_container_width=True, height=450)
+st.line_chart(df.set_index("Quarter"), use_container_width=True, height=400)
 
-st.subheader(f"Current Prices — {region} (Up to {max_year})")
-
-st.subheader("Full Quarterly Data")
+st.subheader(f"Current Prices (Up to {max_year})")
 st.dataframe(df, use_container_width=True)
-
-st.caption("Global Reclaimed Bricks Intelligence • Powered by Grok")
