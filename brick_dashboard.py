@@ -16,7 +16,7 @@ Sourced from Salvo Marketplace members and public websites.
 """)
 st.markdown("---")
 
-# ====================== TIER ======================
+# Tier
 query_params = st.query_params
 tier = query_params.get("tier", ["free"])[0].lower()
 
@@ -49,15 +49,33 @@ for i, (city, tz) in enumerate(cities):
 
 st.markdown("---")
 
-# ====================== DATA (with Brick Types) ======================
+# ====================== REGION SELECTOR ======================
+region = st.selectbox("🌍 Select Region / Currency", 
+                     ["US (USD)", "UK (GBP)", "EU (EUR)", "Australia (AUD)"])
+
+# ====================== DATA ======================
 quarters = ["Q3 2024", "Q4 2024", "Q1 2025", "Q2 2025", "Q3 2025", "Q4 2025", "Q1 2026", "Q2 2026"]
+brick_types = ["Handmade"]*8 + ["Wirecut"]*8 + ["Pressed"]*8
 
 data = {
     "Quarter": quarters * 3,
-    "Type": ["Handmade"]*8 + ["Wirecut"]*8 + ["Pressed"]*8,
+    "Type": brick_types,
+    # US
     "Common_USD": [0.55,0.57,0.58,0.60,0.62,0.64,0.66,0.68] + [0.38,0.40,0.41,0.42,0.43,0.44,0.45,0.47] + [0.48,0.50,0.51,0.52,0.53,0.55,0.57,0.59],
     "Cleaned_USD": [1.35,1.38,1.42,1.45,1.48,1.52,1.55,1.60] + [0.95,0.98,1.00,1.03,1.05,1.08,1.12,1.15] + [1.10,1.13,1.16,1.20,1.23,1.27,1.30,1.35],
     "Premium_USD": [2.10,2.15,2.20,2.25,2.30,2.35,2.42,2.50] + [1.45,1.48,1.52,1.55,1.60,1.65,1.70,1.75] + [1.75,1.80,1.85,1.90,1.95,2.00,2.05,2.10],
+    # UK
+    "Common_GBP": [0.42,0.44,0.45,0.46,0.47,0.48,0.50,0.52] + [0.30,0.32,0.33,0.34,0.35,0.36,0.37,0.38] + [0.38,0.39,0.40,0.41,0.42,0.43,0.44,0.46],
+    "Cleaned_GBP": [1.05,1.08,1.10,1.12,1.15,1.18,1.22,1.25] + [0.75,0.78,0.80,0.82,0.85,0.88,0.90,0.92] + [0.88,0.90,0.92,0.95,0.97,1.00,1.02,1.05],
+    "Premium_GBP": [1.65,1.70,1.75,1.80,1.85,1.90,1.95,2.00] + [1.15,1.18,1.20,1.23,1.27,1.30,1.35,1.40] + [1.40,1.42,1.45,1.48,1.52,1.55,1.60,1.65],
+    # EU
+    "Common_EUR": [0.40,0.41,0.42,0.43,0.44,0.45,0.47,0.49] + [0.29,0.30,0.31,0.32,0.33,0.34,0.35,0.36] + [0.36,0.37,0.38,0.39,0.40,0.41,0.42,0.44],
+    "Cleaned_EUR": [1.00,1.03,1.05,1.08,1.10,1.13,1.17,1.20] + [0.72,0.74,0.76,0.78,0.80,0.82,0.85,0.88] + [0.85,0.87,0.90,0.92,0.95,0.97,1.00,1.03],
+    "Premium_EUR": [1.55,1.60,1.65,1.70,1.75,1.80,1.85,1.90] + [1.10,1.13,1.15,1.18,1.22,1.25,1.30,1.35] + [1.32,1.35,1.38,1.42,1.45,1.48,1.52,1.58],
+    # Australia
+    "Common_AUD": [0.68,0.70,0.71,0.73,0.74,0.76,0.78,0.80] + [0.48,0.50,0.51,0.52,0.53,0.55,0.56,0.58] + [0.58,0.60,0.61,0.62,0.64,0.66,0.68,0.70],
+    "Cleaned_AUD": [1.70,1.72,1.75,1.78,1.82,1.85,1.90,1.95] + [1.20,1.23,1.25,1.28,1.32,1.35,1.38,1.42] + [1.40,1.42,1.45,1.48,1.52,1.55,1.60,1.65],
+    "Premium_AUD": [2.45,2.50,2.55,2.60,2.65,2.70,2.78,2.85] + [1.75,1.78,1.82,1.85,1.90,1.95,2.00,2.05] + [2.05,2.10,2.15,2.20,2.25,2.30,2.35,2.42],
 }
 
 df = pd.DataFrame(data)
@@ -73,27 +91,23 @@ quarter_order = ["Q3 2024", "Q4 2024", "Q1 2025", "Q2 2025", "Q3 2025", "Q4 2025
 df["Quarter"] = pd.Categorical(df["Quarter"], categories=quarter_order, ordered=True)
 df = df.sort_values("Quarter")
 
-# ====================== TABS ======================
-tab1, tab2, tab3 = st.tabs(["Handmade", "Wirecut", "Pressed"])
+# ====================== BRICK TYPE TABS ======================
+tab1, tab2, tab3 = st.tabs(["🧱 Handmade", "🔨 Wirecut", "🪨 Pressed"])
 
-with tab1:
-    st.subheader("Handmade Bricks")
-    type_df = df[df["Type"] == "Handmade"]
-    st.line_chart(type_df.set_index("Quarter")[["Common_USD", "Cleaned_USD", "Premium_USD"]], height=450)
+region_map = {
+    "US (USD)": "USD", "UK (GBP)": "GBP", 
+    "EU (EUR)": "EUR", "Australia (AUD)": "AUD"
+}
+curr = region_map[region]
 
-with tab2:
-    st.subheader("Wirecut Bricks")
-    type_df = df[df["Type"] == "Wirecut"]
-    st.line_chart(type_df.set_index("Quarter")[["Common_USD", "Cleaned_USD", "Premium_USD"]], height=450)
-
-with tab3:
-    st.subheader("Pressed Bricks")
-    type_df = df[df["Type"] == "Pressed"]
-    st.line_chart(type_df.set_index("Quarter")[["Common_USD", "Cleaned_USD", "Premium_USD"]], height=450)
-
-# Export
-if st.button("📥 Export Current View as CSV"):
-    csv = df.to_csv(index=False).encode('utf-8')
-    st.download_button("Download CSV", csv, "reclaimed_bricks_data.csv", "text/csv")
+for tab, brick_type in zip([tab1, tab2, tab3], ["Handmade", "Wirecut", "Pressed"]):
+    with tab:
+        st.subheader(f"{brick_type} Bricks — {region}")
+        type_df = df[df["Type"] == brick_type]
+        
+        cols = [f"Common_{curr}", f"Cleaned_{curr}", f"Premium_{curr}"]
+        chart_data = type_df[["Quarter"] + cols].set_index("Quarter")
+        
+        st.line_chart(chart_data, use_container_width=True, height=480)
 
 st.caption("Global Reclaimed Bricks Intelligence • Powered by Grok")
