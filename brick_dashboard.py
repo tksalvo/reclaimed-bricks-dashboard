@@ -35,11 +35,15 @@ if st.button("🔑 Login / Register on salvoweb.com"):
 
 st.markdown("---")
 
-# Time
+# ====================== CURRENT TIME ======================
 st.subheader("Current Time (Key Cities)")
 time_cols = st.columns(4)
-cities = [("Chicago", "America/Chicago"), ("London", "Europe/London"), 
-          ("Brussels", "Europe/Brussels"), ("Sydney", "Australia/Sydney")]
+cities = [
+    ("Chicago", "America/Chicago"),
+    ("London", "Europe/London"),
+    ("Brussels", "Europe/Brussels"),
+    ("Sydney", "Australia/Sydney")
+]
 
 for i, (city, tz) in enumerate(cities):
     with time_cols[i]:
@@ -49,7 +53,7 @@ for i, (city, tz) in enumerate(cities):
 
 st.markdown("---")
 
-# ====================== FULL DATA ======================
+# ====================== DATA ======================
 data = {
     "Quarter": ["Q3 2024", "Q4 2024", "Q1 2025", "Q2 2025", "Q3 2025", "Q4 2025", "Q1 2026", "Q2 2026"],
     "Common_USD": [0.42, 0.44, 0.45, 0.46, 0.47, 0.48, 0.50, 0.525],
@@ -77,6 +81,11 @@ if tier == "free":
     df = df[df["Quarter"].str.contains("2024")].copy()
 elif tier == "salvoweb":
     df = df[df["Quarter"].str.contains("2024|2025")].copy()
+
+# ====================== FORCE CHRONOLOGICAL ORDER ======================
+quarter_order = ["Q3 2024", "Q4 2024", "Q1 2025", "Q2 2025", "Q3 2025", "Q4 2025", "Q1 2026", "Q2 2026"]
+df["Quarter"] = pd.Categorical(df["Quarter"], categories=quarter_order, ordered=True)
+df = df.sort_values("Quarter")
 
 # ====================== FILTERS ======================
 col1, col2 = st.columns([2, 2])
