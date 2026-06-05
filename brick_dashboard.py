@@ -5,7 +5,7 @@ import pytz
 
 st.set_page_config(page_title="No16: Reclaimed Bricks", layout="wide")
 
-# HEADER
+# ====================== HEADER ======================
 st.markdown("### Global OIPRs by Salvo futuREuse Ltd")
 st.title("No16: Reclaimed Bricks")
 
@@ -16,7 +16,7 @@ Sourced from Salvo Marketplace members and public websites.
 """)
 st.markdown("---")
 
-# Tier
+# ====================== TIER ======================
 query_params = st.query_params
 tier = query_params.get("tier", ["free"])[0].lower()
 
@@ -35,7 +35,7 @@ if st.button("🔑 Login / Register on salvoweb.com"):
 
 st.markdown("---")
 
-# Time
+# Current Time
 st.subheader("Current Time (Key Cities)")
 time_cols = st.columns(4)
 cities = [("Chicago", "America/Chicago"), ("London", "Europe/London"), 
@@ -49,61 +49,51 @@ for i, (city, tz) in enumerate(cities):
 
 st.markdown("---")
 
-# ====================== DATA ======================
-data = { ... }  # (same full data as before - I kept it short here for space)
+# ====================== DATA (with Brick Types) ======================
+quarters = ["Q3 2024", "Q4 2024", "Q1 2025", "Q2 2025", "Q3 2025", "Q4 2025", "Q1 2026", "Q2 2026"]
+
+data = {
+    "Quarter": quarters * 3,
+    "Type": ["Handmade"]*8 + ["Wirecut"]*8 + ["Pressed"]*8,
+    "Common_USD": [0.55,0.57,0.58,0.60,0.62,0.64,0.66,0.68] + [0.38,0.40,0.41,0.42,0.43,0.44,0.45,0.47] + [0.48,0.50,0.51,0.52,0.53,0.55,0.57,0.59],
+    "Cleaned_USD": [1.35,1.38,1.42,1.45,1.48,1.52,1.55,1.60] + [0.95,0.98,1.00,1.03,1.05,1.08,1.12,1.15] + [1.10,1.13,1.16,1.20,1.23,1.27,1.30,1.35],
+    "Premium_USD": [2.10,2.15,2.20,2.25,2.30,2.35,2.42,2.50] + [1.45,1.48,1.52,1.55,1.60,1.65,1.70,1.75] + [1.75,1.80,1.85,1.90,1.95,2.00,2.05,2.10],
+}
 
 df = pd.DataFrame(data)
 
+# Tier filtering
 if tier == "free":
     df = df[df["Quarter"].str.contains("2024")].copy()
 elif tier == "salvoweb":
     df = df[df["Quarter"].str.contains("2024|2025")].copy()
 
+# Chronological order
 quarter_order = ["Q3 2024", "Q4 2024", "Q1 2025", "Q2 2025", "Q3 2025", "Q4 2025", "Q1 2026", "Q2 2026"]
 df["Quarter"] = pd.Categorical(df["Quarter"], categories=quarter_order, ordered=True)
 df = df.sort_values("Quarter")
 
-# Filters
-col1, col2, col3 = st.columns([2, 2, 1])
-with col1:
-    region = st.selectbox("Select Region", ["US (USD)", "UK (GBP)", "EU (EUR)", "Australia (AUD)"])
-with col2:
-    price_type = st.radio("Price Display", ["Per Brick", "Per 1,000 Bricks"], horizontal=True)
-with col3:
-    show_overlay = st.checkbox("Overlay Comparison", value=False)
+# ====================== TABS ======================
+tab1, tab2, tab3 = st.tabs(["Handmade", "Wirecut", "Pressed"])
 
-multiplier = 1000 if price_type == "Per 1,000 Bricks" else 1
+with tab1:
+    st.subheader("Handmade Bricks")
+    type_df = df[df["Type"] == "Handmade"]
+    st.line_chart(type_df.set_index("Quarter")[["Common_USD", "Cleaned_USD", "Premium_USD"]], height=450)
 
-# Region map (same as before)
-region_map = { ... }  # same as previous version
+with tab2:
+    st.subheader("Wirecut Bricks")
+    type_df = df[df["Type"] == "Wirecut"]
+    st.line_chart(type_df.set_index("Quarter")[["Common_USD", "Cleaned_USD", "Premium_USD"]], height=450)
 
-selected_cols = region_map[region]
+with tab3:
+    st.subheader("Pressed Bricks")
+    type_df = df[df["Type"] == "Pressed"]
+    st.line_chart(type_df.set_index("Quarter")[["Common_USD", "Cleaned_USD", "Premium_USD"]], height=450)
 
-st.subheader("Price Trends Over Time")
-if show_overlay:
-    # Simple overlay example - can be expanded
-    st.info("Overlay mode - select multiple regions in future version")
-else:
-    chart_data = df[["Quarter"] + selected_cols].set_index("Quarter") * multiplier
-    st.line_chart(chart_data, use_container_width=True, height=500)
-
-# Export Button
-if st.button("📥 Export Current Data as CSV"):
+# Export
+if st.button("📥 Export Current View as CSV"):
     csv = df.to_csv(index=False).encode('utf-8')
     st.download_button("Download CSV", csv, "reclaimed_bricks_data.csv", "text/csv")
-
-st.subheader(f"Current Prices — {region} (Up to {max_year})")
-st.dataframe(df[["Quarter"] + selected_cols], use_container_width=True)
-
-# Simple User Submission Form (Trial)
-if tier != "free":
-    with st.expander("📤 Submit Your Own Price Data (Trial)"):
-        st.write("Admin approval required before appearing in median")
-        with st.form("submit_data"):
-            submitted_region = st.selectbox("Region", ["US", "UK", "EU", "Australia"])
-            price = st.number_input("Price per Brick (USD/GBP/etc)", value=1.25)
-            brick_type = st.text_input("Brick Type (e.g. Handmade Red)")
-            if st.form_submit_button("Submit for Approval"):
-                st.success("✅ Data submitted for admin review!")
 
 st.caption("Global Reclaimed Bricks Intelligence • Powered by Grok")
