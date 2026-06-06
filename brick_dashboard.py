@@ -16,9 +16,15 @@ Sourced from Salvo Marketplace members and public websites.
 """)
 st.markdown("---")
 
-# ====================== TIER ======================
+# ====================== TIER & REGION ======================
 query_params = st.query_params
 tier = query_params.get("tier", ["free"])[0].lower()
+
+region = st.selectbox("🌍 Select Region / Currency", 
+                     ["US (USD)", "UK (GBP)", "EU (EUR)", "Australia (AUD)"])
+
+# Symbol defined early and always available
+symbol = {"US (USD)": "$", "UK (GBP)": "£", "EU (EUR)": "€", "Australia (AUD)": "A$"}[region]
 
 if tier == "free":
     st.info("🔓 **Free Tier** — Indicative Price Ranges (up to 2024)")
@@ -32,14 +38,6 @@ else:
 
 if st.button("🔑 Login / Register on salvoweb.com"):
     st.markdown("[👉 Go to salvoweb.com](https://salvoweb.com)", unsafe_allow_html=True)
-
-st.markdown("---")
-
-# ====================== REGION & SYMBOL ======================
-region = st.selectbox("🌍 Select Region / Currency", 
-                     ["US (USD)", "UK (GBP)", "EU (EUR)", "Australia (AUD)"])
-
-symbol = {"US (USD)": "$", "UK (GBP)": "£", "EU (EUR)": "€", "Australia (AUD)": "A$"}[region]
 
 st.markdown("---")
 
@@ -57,7 +55,7 @@ for i, (city, tz) in enumerate(cities):
 
 st.markdown("---")
 
-# ====================== DATA ======================
+# Data and Tabs (same structure)
 quarters = ["Q3 2024", "Q4 2024", "Q1 2025", "Q2 2025", "Q3 2025", "Q4 2025", "Q1 2026", "Q2 2026"]
 brick_types = ["Handmade"]*8 + ["Wirecut"]*8 + ["Pressed"]*8
 
