@@ -35,7 +35,7 @@ if st.button("🔑 Login / Register on salvoweb.com"):
 
 st.markdown("---")
 
-# ====================== REGION & SYMBOL ======================
+# ====================== REGION + SYMBOL ======================
 region = st.selectbox("🌍 Select Region / Currency", 
                      ["US (USD)", "UK (GBP)", "EU (EUR)", "Australia (AUD)"])
 
@@ -101,23 +101,4 @@ tab1, tab2, tab3 = st.tabs(["🧱 Handmade", "🔨 Wirecut", "🪨 Pressed"])
 region_map = {"US (USD)": "USD", "UK (GBP)": "GBP", "EU (EUR)": "EUR", "Australia (AUD)": "AUD"}
 curr = region_map[region]
 
-for tab, brick_type in zip([tab1, tab2, tab3], ["Handmade", "Wirecut", "Pressed"]):
-    with tab:
-        st.subheader(f"{brick_type} Bricks — {region}")
-        type_df = df[df["Type"] == brick_type]
-        
-        cols = [f"Common_{curr}", f"Cleaned_{curr}", f"Premium_{curr}"]
-        
-        if view_mode == "range":
-            st.metric("Common", f"{symbol}{type_df[cols[0]].min():.2f} – {symbol}{type_df[cols[0]].max():.2f}")
-            st.metric("Cleaned", f"{symbol}{type_df[cols[1]].min():.2f} – {symbol}{type_df[cols[1]].max():.2f}")
-            st.metric("Premium", f"{symbol}{type_df[cols[2]].min():.2f} – {symbol}{type_df[cols[2]].max():.2f}")
-        else:
-            st.metric("Median", f"{symbol}{type_df[cols[1]].median():.2f}")
-            st.metric("Last Reported", f"{symbol}{type_df[cols[1]].iloc[-1]:.2f}")
-            st.metric("Weighted Avg", f"{symbol}{type_df[cols[1]].mean():.2f}")
-
-        chart_data = type_df[["Quarter"] + cols].set_index("Quarter")
-        st.line_chart(chart_data, use_container_width=True, height=450)
-
-st.caption("Global Reclaimed Bricks Intelligence • Powered by Grok")
+for tab, brick_type in zip([tab1, tab2,
