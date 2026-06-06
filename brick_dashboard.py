@@ -16,27 +16,33 @@ Sourced from Salvo Marketplace members and public websites.
 """)
 st.markdown("---")
 
-# ====================== TIER & REGION ======================
+# ====================== TIER (Strict) ======================
 query_params = st.query_params
-tier = query_params.get("tier", ["free"])[0].lower()
+tier_input = query_params.get("tier", ["free"])[0].lower()
 
+if tier_input == "free":
+    tier = "free"
+    view_mode = "range"
+    st.info("🔓 **Free Tier** — Indicative Price Ranges (up to 2024)")
+elif tier_input == "salvoweb":
+    tier = "salvoweb"
+    view_mode = "detailed"
+    st.success("✅ **salvoweb.com Registered User** — Enhanced Data up to Q4 2025")
+else:  # premium or anything else
+    tier = "premium"
+    view_mode = "detailed"
+    st.success("⭐ **Full Marketplace Member** — Full Analytics including 2026")
+
+if st.button("🔑 Login / Register on salvoweb.com"):
+    st.markdown("[👉 Go to salvoweb.com](https://salvoweb.com)", unsafe_allow_html=True)
+
+st.markdown("---")
+
+# ====================== REGION & SYMBOL ======================
 region = st.selectbox("🌍 Select Region / Currency", 
                      ["US (USD)", "UK (GBP)", "EU (EUR)", "Australia (AUD)"])
 
 symbol = {"US (USD)": "$", "UK (GBP)": "£", "EU (EUR)": "€", "Australia (AUD)": "A$"}[region]
-
-if tier == "free":
-    st.info("🔓 **Free Tier** — Indicative Price Ranges (up to 2024)")
-    view_mode = "range"
-elif tier == "salvoweb":
-    st.success("✅ **salvoweb.com Registered User** — Enhanced Data up to Q4 2025")
-    view_mode = "detailed"
-else:
-    st.success("⭐ **Full Marketplace Member** — Full Analytics including 2026")
-    view_mode = "detailed"
-
-if st.button("🔑 Login / Register on salvoweb.com"):
-    st.markdown("[👉 Go to salvoweb.com](https://salvoweb.com)", unsafe_allow_html=True)
 
 st.markdown("---")
 
