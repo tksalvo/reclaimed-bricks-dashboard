@@ -16,19 +16,19 @@ Sourced from Salvo Marketplace members and public websites.
 """)
 st.markdown("---")
 
-# Tier
+# ====================== TIER ======================
 query_params = st.query_params
 tier = query_params.get("tier", ["free"])[0].lower()
 
 if tier == "free":
-    st.info("🔓 **Free Tier** — Data up to 2024")
-    max_year = "2024"
+    st.info("🔓 **Free Tier** — Indicative Price Ranges (up to 2024)")
+    view_mode = "range"
 elif tier == "salvoweb":
-    st.success("✅ **salvoweb.com Registered User** — Data up to Q4 2025")
-    max_year = "2025"
+    st.success("✅ **salvoweb.com Registered User** — Enhanced Data up to Q4 2025")
+    view_mode = "detailed"
 else:
-    st.success("⭐ **Full Marketplace Member** — All data including 2026")
-    max_year = "2026"
+    st.success("⭐ **Full Marketplace Member** — Full Analytics including 2026")
+    view_mode = "detailed"
 
 if st.button("🔑 Login / Register on salvoweb.com"):
     st.markdown("[👉 Go to salvoweb.com](https://salvoweb.com)", unsafe_allow_html=True)
@@ -49,9 +49,11 @@ for i, (city, tz) in enumerate(cities):
 
 st.markdown("---")
 
-# ====================== REGION SELECTOR ======================
+# Region Selector
 region = st.selectbox("🌍 Select Region / Currency", 
                      ["US (USD)", "UK (GBP)", "EU (EUR)", "Australia (AUD)"])
+
+st.markdown("---")
 
 # ====================== DATA ======================
 quarters = ["Q3 2024", "Q4 2024", "Q1 2025", "Q2 2025", "Q3 2025", "Q4 2025", "Q1 2026", "Q2 2026"]
@@ -94,10 +96,7 @@ df = df.sort_values("Quarter")
 # ====================== BRICK TYPE TABS ======================
 tab1, tab2, tab3 = st.tabs(["🧱 Handmade", "🔨 Wirecut", "🪨 Pressed"])
 
-region_map = {
-    "US (USD)": "USD", "UK (GBP)": "GBP", 
-    "EU (EUR)": "EUR", "Australia (AUD)": "AUD"
-}
+region_map = {"US (USD)": "USD", "UK (GBP)": "GBP", "EU (EUR)": "EUR", "Australia (AUD)": "AUD"}
 curr = region_map[region]
 
 for tab, brick_type in zip([tab1, tab2, tab3], ["Handmade", "Wirecut", "Pressed"]):
@@ -106,8 +105,18 @@ for tab, brick_type in zip([tab1, tab2, tab3], ["Handmade", "Wirecut", "Pressed"
         type_df = df[df["Type"] == brick_type]
         
         cols = [f"Common_{curr}", f"Cleaned_{curr}", f"Premium_{curr}"]
-        chart_data = type_df[["Quarter"] + cols].set_index("Quarter")
         
-        st.line_chart(chart_data, use_container_width=True, height=480)
+        if view_mode == "range":
+            st.metric("Common Range", f"£{type_df[cols[0]].min():.2f} – £{type_df[cols[0]].max():.2f}")
+            st.metric("Cleaned Range", f"£{type_df[cols[1]].min():.2f} – £{type_df[cols[1]].max():.2f}")
+            st.metric("Premium Range", f"£{type_df[cols[2]].min():.2f} – £{type_df[cols[2]].max():.2f}")
+        else:
+            st.metric("Median Price", f"£{type_df[cols[1]].median():.2f}")
+            st.metric("Last Reported", f"£{type_df[cols[1]].iloc[-1]:.2f}")
+            st.metric("Weighted Avg", f"£{type_df[cols[1]].mean():.2f}")
+        
+        # Chart
+        chart_data = type_df[["Quarter"] + cols].set_index("Quarter")
+        st.line_chart(chart_data, use_container_width=True, height=450)
 
 st.caption("Global Reclaimed Bricks Intelligence • Powered by Grok")
